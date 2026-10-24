@@ -1,0 +1,10 @@
+node_modules/
+dist/
+coverage/
+test-results/
+audit-*.json
+.env
+*.pem
+*.key
+*.tgz
+.agent/
