@@ -50,10 +50,19 @@ Estados: NUEVO → ASIGNADO → EN_PROCESO → RESUELTO → CERRADO.
 ## Responsables
 | Rol | Usuario |
 |---|---|
-| Desarrollo / Product Owner | _tu nombre_ |
-| Revisor de código (QA) | _usuario 2_ |
-| Aprobador de releases (Ops) | _usuario 3_ |
+| Desarrollo / Product Owner | BYRON ERNESTO COXAJ MUNDO (BYRON1222) |
+| Revisor de código (QA) | BYRON1222 (misma cuenta, ver nota) |
+| Aprobador de releases (Ops) | BYRON1222 (misma cuenta, ver nota) |
 
 ## Enlaces
-- Azure DevOps: _URL_
-- Repositorios: _semana 1_ · _semana 2_ · _semana 3_
+- Azure DevOps: https://dev.azure.com/bcoxajm/incident-hub
+- Repositorios: Azure Repos https://dev.azure.com/bcoxajm/incident-hub/_git/incident-hub-semana1 · GitHub https://github.com/BYRON1222/incident-hub
+
+## Nota sobre el equipo y las revisiones
+Este proyecto estaba planeado para un equipo de 4 personas y se cambió a individual por indicación del docente. La organización de Azure DevOps pertenece al directorio de la UMG, que no permite invitar cuentas externas, por lo que se trabajó con una sola cuenta (BYRON1222 / bcoxajm@miumg.edu.gt).
+
+Para conservar la trazabilidad:
+- Cada cambio se hace en una rama `feature/*`, `fix/*`, `refactor/*` o `docs/*` y se integra por Pull Request con work item vinculado (AB#ID).
+- Cada PR incluye comentarios de revisión y evidencia de validación (lint, pruebas, pipeline).
+- La política de `main` exige 1 aprobación y se habilitó que el autor apruebe su propio PR por ser proyecto individual.
+- Los commits de corrección posteriores a la revisión usan el autor "BYRON1222 (Revisor QA)".
