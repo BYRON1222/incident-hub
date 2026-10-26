@@ -1,6 +1,6 @@
 {
   "name": "incident-hub-backend",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "API REST de IT Incident Hub",
   "main": "src/server.js",
@@ -22,9 +22,22 @@
   },
   "jest": {
     "rootDir": ".",
-    "roots": ["<rootDir>/../tests"],
-    "modulePaths": ["<rootDir>/node_modules"],
+    "roots": [
+      "<rootDir>/../tests"
+    ],
+    "modulePaths": [
+      "<rootDir>/node_modules"
+    ],
     "testEnvironment": "node",
-    "reporters": ["default", ["jest-junit", { "outputDirectory": "test-results", "outputName": "junit.xml" }]]
+    "reporters": [
+      "default",
+      [
+        "jest-junit",
+        {
+          "outputDirectory": "test-results",
+          "outputName": "junit.xml"
+        }
+      ]
+    ]
   }
 }
