@@ -18,6 +18,7 @@ function validarNuevo(body = {}) {
   const errores = [];
   const texto = (v) => typeof v === 'string' && v.trim().length > 0;
   if (!texto(body.titulo)) errores.push('titulo es obligatorio');
+  else if (body.titulo.length > 200) errores.push('titulo no puede superar 200 caracteres');
   if (!texto(body.descripcion)) errores.push('descripcion es obligatoria');
   if (!texto(body.usuario)) errores.push('usuario es obligatorio');
   if (!CATEGORIAS.includes(body.categoria)) errores.push(`categoria debe ser una de: ${CATEGORIAS.join(', ')}`);
