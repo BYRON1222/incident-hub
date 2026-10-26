@@ -1,0 +1,141 @@
+# Pipeline de IT Incident Hub: CI + empaquetado + liberación por ambientes.
+trigger:
+  branches:
+    include: [main]
+  tags:
+    include: ['v*']
+
+pr:
+  branches:
+    include: [main]
+
+pool:
+  name: Default            # Pool con tu agente autohospedado (ver docs/security.md y GUIA-MANUAL)
+  demands:
+    - Agent.OS -equals Linux
+
+variables:
+  - group: incident-hub-secrets   # Variable group con DATABASE_URL (secreto). Se crea a mano en Library.
+  - name: nodeVersion
+    value: '20.x'
+
+stages:
+  - stage: CI
+    displayName: Build, pruebas y seguridad
+    jobs:
+      - job: build
+        steps:
+          - checkout: self
+            fetchDepth: 0
+
+          - task: NodeTool@0
+            displayName: Instalar Node
+            inputs:
+              versionSpec: $(nodeVersion)
+
+          - script: npm ci
+            displayName: Instalar dependencias backend
+            workingDirectory: backend
+
+          - script: npm run lint
+            displayName: Lint backend
+            workingDirectory: backend
+
+          - script: npm test
+            displayName: Pruebas backend
+            workingDirectory: backend
+
+          - task: PublishTestResults@2
+            displayName: Publicar resultados de pruebas
+            condition: succeededOrFailed()
+            inputs:
+              testResultsFormat: JUnit
+              testResultsFiles: backend/test-results/junit.xml
+              failTaskOnFailedTests: true
+
+          - script: npm ci
+            displayName: Instalar dependencias frontend
+            workingDirectory: frontend
+
+          - script: npm run build
+            displayName: Build frontend
+            workingDirectory: frontend
+
+          - script: |
+              npm audit --json > ../audit-backend-full.json || true
+              npm audit --omit=dev --audit-level=high
+            displayName: Revisión de dependencias backend (falla con high/critical en producción)
+            workingDirectory: backend
+
+          - script: |
+              npm audit --json > ../audit-frontend-full.json || true
+              npm audit --omit=dev --audit-level=high
+            displayName: Revisión de dependencias frontend (falla con high/critical en producción)
+            workingDirectory: frontend
+
+          - script: |
+              set -e
+              VERSION=$(node -p "require('./backend/package.json').version")
+              echo "##vso[task.setvariable variable=appVersion]$VERSION"
+              mkdir -p $(Build.ArtifactStagingDirectory)/pkg/backend
+              cp -r backend/src backend/package.json backend/package-lock.json $(Build.ArtifactStagingDirectory)/pkg/backend/
+              cp -r frontend/dist $(Build.ArtifactStagingDirectory)/pkg/frontend
+              cp -r database $(Build.ArtifactStagingDirectory)/pkg/database
+              tar czf $(Build.ArtifactStagingDirectory)/incident-hub-$VERSION-$(Build.BuildId).tgz -C $(Build.ArtifactStagingDirectory)/pkg .
+              cp audit-*-full.json $(Build.ArtifactStagingDirectory)/
+            displayName: Empaquetar artefacto
+
+          - publish: $(Build.ArtifactStagingDirectory)
+            artifact: incident-hub
+            displayName: Publicar artefacto
+
+  - stage: Dev
+    displayName: Despliegue DEV (automático)
+    dependsOn: CI
+    condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+    jobs:
+      - deployment: deploy_dev
+        environment: incident-hub-dev
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - script: ./devops/deploy.sh "$(Pipeline.Workspace)"/incident-hub/incident-hub-*.tgz dev 3101
+                  displayName: Desplegar y validar en DEV
+                  env:
+                    DATABASE_URL: $(DATABASE_URL)
+
+  - stage: QA
+    displayName: Despliegue QA (aprobación + smoke test)
+    dependsOn: Dev
+    condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/v'))
+    jobs:
+      - deployment: deploy_qa
+        environment: incident-hub-qa     # Configurar Approvals and checks en este environment
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - script: ./devops/deploy.sh "$(Pipeline.Workspace)"/incident-hub/incident-hub-*.tgz qa 3102
+                  displayName: Desplegar y validar en QA
+                  env:
+                    DATABASE_URL: $(DATABASE_URL)
+
+  - stage: Prod
+    displayName: Despliegue PROD (aprobación manual)
+    dependsOn: QA
+    condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/v'))
+    jobs:
+      - deployment: deploy_prod
+        environment: incident-hub-prod   # Configurar Approvals and checks (tú como aprobador)
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - script: ./devops/deploy.sh "$(Pipeline.Workspace)"/incident-hub/incident-hub-*.tgz prod 3103
+                  displayName: Desplegar y validar en PROD
+                  env:
+                    DATABASE_URL: $(DATABASE_URL)

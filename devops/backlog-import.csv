@@ -1,0 +1,31 @@
+Work Item Type,Title 1,Title 2,Title 3,Title 4,Priority,State,Story Points,Original Estimate
+Epic,Gestión de incidentes,,,,1,New,,
+Feature,,Registro y consulta de incidentes,,,1,New,,
+User Story,,,Crear y consultar incidente,,1,New,5,
+Task,,,,Diseñar esquema PostgreSQL y repositorio de datos,1,New,,4
+Task,,,,Implementar endpoints POST/GET de incidentes con validaciones,1,New,,4
+User Story,,,Filtros e indicadores,,2,New,5,
+Task,,,,Implementar filtros y endpoint de dashboard,2,New,,4
+Task,,,,"Construir UI: formulario, lista, filtros y dashboard",2,New,,6
+Feature,,Operación y seguimiento,,,2,New,,
+User Story,,,Asignar técnico y cambiar estado,,1,New,5,
+Task,,,,Implementar asignación y transiciones de estado válidas,1,New,,4
+Task,,,,Construir UI de detalle con asignación y cambio de estado,2,New,,4
+User Story,,,Bitácora por incidente,,2,New,3,
+Task,,,,Implementar endpoint de comentarios y eventos de sistema,2,New,,3
+Task,,,,Construir UI de bitácora,3,New,,3
+Epic,Plataforma DevOps y entrega continua,,,,1,New,,
+Feature,,CI/CD y calidad,,,1,New,,
+User Story,,,Pipeline CI en Azure Pipelines,,1,New,8,
+Task,,,,"Crear azure-pipelines.yml (build, pruebas, auditoría, artefacto)",1,New,,6
+Task,,,,Configurar agente autohospedado en Fedora,1,New,,4
+User Story,,,Workflow GitHub Actions y revisión de dependencias,,2,New,5,
+Task,,,,"Crear workflow ci.yml (PR, lint, pruebas, dependency review)",2,New,,4
+Task,,,,Documentar vulnerabilidades y decisiones,2,New,,3
+Feature,,Seguridad y lanzamiento,,,2,New,,
+User Story,,,Secretos y deuda técnica,,1,New,5,
+Task,,,,Crear variable group y secretos protegidos,1,New,,2
+Task,,,,Resolver 2 deudas técnicas con trabajo trazable,2,New,,5
+User Story,,,Release controlado v1.0.0,,1,New,8,
+Task,,,,Configurar environments DEV/QA/PROD con aprobaciones,1,New,,3
+Task,,,,"Aplicar SemVer, tags y release notes hasta v1.0.0",1,New,,3
